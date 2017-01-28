@@ -7,6 +7,7 @@ namespace Config
     namespace Log
     {
         const std::string win32_initialization_logger = "Win32 Initialization";
+        const std::string direct3d11_initialization_logger = "Direct3D11 Initialization";
         const std::string console = "console";
 
         const std::string registerClassExFailed = "Call to RegisterClassEx failed!";

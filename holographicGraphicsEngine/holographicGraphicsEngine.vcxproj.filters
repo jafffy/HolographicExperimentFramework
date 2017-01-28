@@ -37,12 +37,18 @@
     <ClInclude Include="src\internal\win32\Win32Impl.h">
       <Filter>include\internal\win32</Filter>
     </ClInclude>
+    <ClInclude Include="src\internal\win32\Direct3D11Impl.h">
+      <Filter>include\internal\win32</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\HolograpihcGraphicsEngine.cc">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\internal\win32\Win32Impl.cc">
+      <Filter>src\internal\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="src\internal\win32\Direct3D11Impl.cc">
       <Filter>src\internal\win32</Filter>
     </ClCompile>
   </ItemGroup>
