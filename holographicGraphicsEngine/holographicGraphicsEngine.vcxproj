@@ -139,9 +139,11 @@
   <ItemGroup>
     <ClInclude Include="include\Config.h" />
     <ClInclude Include="include\HolographicGraphicsEngine.h" />
+    <ClInclude Include="src\internal\win32\Win32Impl.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\HolograpihcGraphicsEngine.cc" />
+    <ClCompile Include="src\internal\win32\Win32Impl.cc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

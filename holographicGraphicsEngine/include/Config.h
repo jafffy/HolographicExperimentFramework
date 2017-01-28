@@ -1,18 +1,24 @@
 #pragma once
 
-#include <string>
+#include <tchar.h>
 
 namespace Config
 {
-    const std::string registerClassExFailed = "Call to RegisterClassEx failed!";
-    const std::string createWindowFailed = "Call to CreateWindow failed!";
-    const std::string windowOpened = "Window opened";
-    const std::string enterRenderingLoop = "Enter Rendering loop";
-
-    namespace DirectX
+    namespace Log
     {
-        const std::string InitializeSuccess = "DirectX initialization success";
-        const std::string ReleaseSuccess = "Released DirectX related instances";
+        const std::string win32_initialization_logger = "Win32 Initialization";
+        const std::string console = "console";
+
+        const std::string registerClassExFailed = "Call to RegisterClassEx failed!";
+        const std::string createWindowFailed = "Call to CreateWindow failed!";
+        const std::string windowOpened = "Window opened";
+        const std::string enterRenderingLoop = "Enter Rendering loop";
+
+        namespace DirectX
+        {
+            const std::string InitializeSuccess = "DirectX initialization success";
+            const std::string ReleaseSuccess = "Released DirectX related instances";
+        }
     }
 
     namespace Window

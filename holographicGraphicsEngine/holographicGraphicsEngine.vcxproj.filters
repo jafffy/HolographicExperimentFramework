@@ -11,6 +11,18 @@
     <Filter Include="src">
       <UniqueIdentifier>{e4d4bbab-def9-436f-a776-79949f028a46}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\internal">
+      <UniqueIdentifier>{178ad9df-8d8b-4713-b97f-78819017e08a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\internal\win32">
+      <UniqueIdentifier>{806a0b5d-d4b1-448c-a20e-ab1bbbc5be64}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\internal">
+      <UniqueIdentifier>{f216a686-9f63-49aa-9078-77c4e14ccf39}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\internal\win32">
+      <UniqueIdentifier>{64ce5d9b-dba8-4241-8dc8-6f8393108163}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -22,10 +34,16 @@
     <ClInclude Include="include\Config.h">
       <Filter>include</Filter>
     </ClInclude>
+    <ClInclude Include="src\internal\win32\Win32Impl.h">
+      <Filter>include\internal\win32</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\HolograpihcGraphicsEngine.cc">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\internal\win32\Win32Impl.cc">
+      <Filter>src\internal\win32</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

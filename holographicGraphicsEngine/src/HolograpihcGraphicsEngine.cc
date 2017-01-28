@@ -3,34 +3,25 @@
 #include <iostream>
 #include <memory>
 
-#include <Windows.h>
-#include <tchar.h>
-
 #include <D3D11.h>
 
 #include <spdlog/spdlog.h>
 
+#include "Config.h"
+
 #include "HolographicGraphicsEngine.h"
 
-#include "Config.h"
+#include "internal/win32/Win32Impl.h"
 
 namespace spd = spdlog;
 
-static auto g_IsRunning = false;
-
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+namespace Internal
 {
-    switch (message)
+    class Direct3D11Impl
     {
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        g_IsRunning = false;
-        break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
+        friend class HologrpahicApp_Win32;
 
-    return 0;
+    };
 }
 
 class HolographicApp_Win32_Impl
@@ -40,55 +31,35 @@ class HolographicApp_Win32_Impl
     ID3D11DeviceContext* pImmediateContext = nullptr;
     IDXGISwapChain* pSwapChain = nullptr;
     ID3D11RenderTargetView* pRenderTargetView = nullptr;
+
+    Internal::Win32Impl* win32Impl = nullptr;
+
+    HolographicApp_Win32_Impl()
+    {
+        win32Impl = new Internal::Win32Impl();
+    }
+
+    ~HolographicApp_Win32_Impl()
+    {
+        if ( win32Impl )
+        {
+            delete win32Impl;
+            win32Impl = nullptr;
+        }
+    }
 };
 
 HolographicApp_Win32::HolographicApp_Win32(int argc, char** argv)
 {
     impl = new HolographicApp_Win32_Impl();
 
-    auto console = spd::stderr_color_mt("console");
+    impl->win32Impl->Initialize();
 
-    WNDCLASSEX wcex;
-    wcex.cbSize			= sizeof(WNDCLASSEX);
-	wcex.style			= CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc	= WndProc;
-	wcex.cbClsExtra		= 0;
-	wcex.cbWndExtra		= 0;
-	wcex.hInstance		= GetModuleHandle(nullptr);
-	wcex.hIcon			= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
-	wcex.hCursor		= LoadCursor(nullptr, IDC_ARROW);
-	wcex.hbrBackground	= reinterpret_cast<HBRUSH>(COLOR_WINDOW+1);
-	wcex.lpszMenuName	= nullptr;
-	wcex.lpszClassName	= Config::Window::WindowClass;
-	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_APPLICATION));
-
-	if (!RegisterClassEx(&wcex)) {
-        console->error(Config::registerClassExFailed);
-
-        return;
-	}
-
-	const auto hWnd = CreateWindow(
-		Config::Window::WindowClass,
-		Config::Window::Title,
-		WS_OVERLAPPEDWINDOW,
-		CW_USEDEFAULT, CW_USEDEFAULT,
-		Config::Window::Width, Config::Window::Height,
-		nullptr, nullptr, wcex.hInstance, nullptr);
-	if (!hWnd) {
-	    console->error(Config::createWindowFailed);
-
-        return;
-	}
-
-	ShowWindow(hWnd, SW_SHOW);
-	UpdateWindow(hWnd);
-
-    console->info(Config::windowOpened);
+    auto console = spd::stderr_color_mt(Config::Log::console);
 
     // DirectX Initialize
     RECT rc;
-    GetClientRect(hWnd, &rc);
+    GetClientRect(impl->win32Impl->hWnd(), &rc);
     UINT width = rc.right - rc.left;
     UINT height = rc.bottom - rc.top;
 
@@ -126,7 +97,7 @@ HolographicApp_Win32::HolographicApp_Win32(int argc, char** argv)
     sd.BufferDesc.RefreshRate.Numerator = 60;
     sd.BufferDesc.RefreshRate.Denominator = 1;
     sd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    sd.OutputWindow = hWnd;
+    sd.OutputWindow = impl->win32Impl->hWnd();
     sd.SampleDesc.Count = 1;
     sd.SampleDesc.Quality = 0;
     sd.Windowed = TRUE;
@@ -164,23 +135,24 @@ HolographicApp_Win32::HolographicApp_Win32(int argc, char** argv)
     vp.TopLeftY = 0;
     impl->pImmediateContext->RSSetViewports(1, &vp);
 
-    console->info(Config::DirectX::InitializeSuccess);
+    console->info(Config::Log::DirectX::InitializeSuccess);
 
-    console->info(Config::enterRenderingLoop);
-	MSG msg = { 0, };
-    g_IsRunning = true;
+    console->info(Config::Log::enterRenderingLoop);
+    MSG msg = { 0, };
 
-	while (g_IsRunning) {
-		if (PeekMessage(&msg, hWnd, 0, 0, PM_REMOVE))
+    impl->win32Impl->Run();
+
+    while ( impl->win32Impl->IsRunning() ) {
+        if ( PeekMessage(&msg, impl->win32Impl->hWnd(), 0, 0, PM_REMOVE) )
         {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-	    else
-		{
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+        else
+        {
             Render();
-		}
-	}
+        }
+    }
 
     if ( impl->pImmediateContext ) impl->pImmediateContext->ClearState();
     if ( impl->pRenderTargetView ) impl->pRenderTargetView->Release();
@@ -188,8 +160,9 @@ HolographicApp_Win32::HolographicApp_Win32(int argc, char** argv)
     if ( impl->pImmediateContext ) impl->pImmediateContext->Release();
     if ( pd3dDevice ) pd3dDevice->Release();
 
-    console->info(Config::DirectX::ReleaseSuccess);
-	UnregisterClass(Config::Window::WindowClass, wcex.hInstance);
+    console->info(Config::Log::DirectX::ReleaseSuccess);
+
+    impl->win32Impl->Release();
 
     Release();
 }
