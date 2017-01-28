@@ -30,30 +30,50 @@ class HolographicApp_Win32_Impl
 
     ~HolographicApp_Win32_Impl()
     {
-        if ( win32Impl )
-        {
-            delete win32Impl;
-            win32Impl = nullptr;
-        }
+        assert(win32Impl && direct3D11Impl);
+
+        direct3D11Impl->Release();
+        win32Impl->Release();
 
         if ( direct3D11Impl )
         {
             delete direct3D11Impl;
             direct3D11Impl = nullptr;
         }
+
+        if ( win32Impl )
+        {
+            delete win32Impl;
+            win32Impl = nullptr;
+        }
     }
 
-    HWND hWnd() const { return win32Impl->hWnd(); }
+    bool Initialize() const
+    {
+        assert(win32Impl && direct3D11Impl);
+
+        return win32Impl->Initialize()
+            && direct3D11Impl->Initialize(hWnd());
+    }
+
+    HWND hWnd() const
+    {
+        assert(win32Impl);
+        return win32Impl->hWnd();
+    }
     ID3D11DeviceContext* ImmediateContext() const
     {
+        assert(direct3D11Impl);
         return direct3D11Impl->ImmediateContext();
     }
     IDXGISwapChain* SwapChain() const
     {
+        assert(direct3D11Impl);
         return direct3D11Impl->SwapChain();
     }
     ID3D11RenderTargetView* RenderTargetView() const
     {
+        assert(direct3D11Impl);
         return direct3D11Impl->RenderTargetView();
     }
 };
@@ -61,10 +81,22 @@ class HolographicApp_Win32_Impl
 HolographicApp_Win32::HolographicApp_Win32(int argc, char** argv)
 {
     impl = new HolographicApp_Win32_Impl();
+}
 
-    impl->win32Impl->Initialize();
-    impl->direct3D11Impl->Initialize(impl->win32Impl->hWnd());
+bool HolographicApp_Win32::Initialize() const
+{
+    return impl->Initialize();
+}
 
+void HolographicApp_Win32::Release()
+{
+    if ( impl ) {
+        delete impl; impl = nullptr;
+    }
+}
+
+void HolographicApp_Win32::Run()
+{
     auto console = spd::stderr_color_mt(Config::Log::console);
 
     console->info(Config::Log::enterRenderingLoop);
@@ -84,20 +116,8 @@ HolographicApp_Win32::HolographicApp_Win32(int argc, char** argv)
         }
     }
 
-    console->info(Config::Log::DirectX::ReleaseSuccess);
-
-    impl->win32Impl->Release();
-
     Release();
 }
-
-void HolographicApp_Win32::Release()
-{
-    if ( impl ) {
-        delete impl; impl = nullptr;
-    }
-}
-
 
 void HolographicApp_Win32::Render() const
 {

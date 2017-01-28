@@ -9,6 +9,13 @@ int main(int argc, char** argv)
 {
     HolographicApp_Win32 app(argc, argv);
 
+    if ( !app.Initialize() )
+        return 1;
+
+    app.Run();
+
+    app.Release();
+
     return 0;
 }
 

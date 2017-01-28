@@ -6,7 +6,10 @@ class HolographicApp_Win32 {
 public:
     HolographicApp_Win32(int argc, char **argv);
 
+    bool Initialize() const;
     void Release();
+
+    void Run();
 
 private:
     void Render() const;
